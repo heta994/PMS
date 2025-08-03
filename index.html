@@ -1,0 +1,2337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinayak PMS - Professional Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #4338CA;
+            --secondary: #10B981;
+            --accent: #F59E0B;
+            --danger: #EF4444;
+            --light: #F3F4F6;
+            --dark: #1F2937;
+            --sidebar-bg: #FFFFFF;
+            --sidebar-text: #374151;
+            --sidebar-hover: #F9FAFB;
+            --header-bg: #FFFFFF;
+            --content-bg: #F9FAFB;
+            --card-bg: #FFFFFF;
+            --border-color: #E5E7EB;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--content-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .slide-down {
+            animation: slideDown 0.3s ease-in-out;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            z-index: 50;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sidebar-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.25rem;
+            margin-right: 0.75rem;
+        }
+        .sidebar-logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .sidebar-section {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sidebar-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            padding: 0 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 0.625rem 1.25rem;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+        .sidebar-item:hover {
+            background-color: var(--sidebar-hover);
+        }
+        .sidebar-item.active {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+            font-weight: 500;
+        }
+        .sidebar-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--primary);
+        }
+        .sidebar-item-icon {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+        /* Main content */
+        .main-content {
+            margin-left: 260px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-content.expanded {
+            margin-left: 0;
+        }
+        /* Header */
+        .header {
+            background-color: var(--header-bg);
+            box-shadow: var(--shadow);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        .search-container {
+            position: relative;
+            width: 300px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .notification-bell {
+            position: relative;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            font-size: 0.625rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-menu {
+            position: relative;
+        }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        /* Content area */
+        .content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        /* Cards */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th {
+            background-color: var(--light);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .data-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table tr:hover {
+            background-color: var(--light);
+        }
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        .btn-secondary {
+            background-color: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            background-color: var(--light);
+        }
+        .btn-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .btn-icon:hover {
+            background-color: var(--light);
+            color: var(--text-primary);
+        }
+        /* Dropdowns */
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-md);
+            min-width: 200px;
+            z-index: 50;
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 1rem;
+            text-align: left;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: var(--light);
+        }
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 0.5rem 0;
+        }
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .search-container {
+                width: 200px;
+            }
+        }
+        /* Dark mode styles */
+        body.dark-mode {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --secondary: #10B981;
+            --accent: #F59E0B;
+            --danger: #EF4444;
+            --light: #374151;
+            --dark: #F9FAFB;
+            --sidebar-bg: #1F2937;
+            --sidebar-text: #D1D5DB;
+            --sidebar-hover: #374151;
+            --header-bg: #1F2937;
+            --content-bg: #111827;
+            --card-bg: #1F2937;
+            --border-color: #374151;
+            --text-primary: #F9FAFB;
+            --text-secondary: #9CA3AF;
+        }
+        body.dark-mode .sidebar-item:hover {
+            background-color: var(--sidebar-hover);
+        }
+        body.dark-mode .card,
+        body.dark-mode .header,
+        body.dark-mode .dropdown-menu {
+            background-color: var(--card-bg);
+        }
+        body.dark-mode .search-input {
+            background-color: var(--light);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+        body.dark-mode .data-table th {
+            background-color: var(--light);
+        }
+        body.dark-mode .data-table tr:hover {
+            background-color: var(--light);
+        }
+        body.dark-mode .btn-secondary {
+            background-color: var(--light);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+        body.dark-mode .btn-secondary:hover {
+            background-color: var(--sidebar-hover);
+        }
+        body.dark-mode .btn-icon:hover {
+            background-color: var(--light);
+        }
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Notification styles */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .notification {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-md);
+            padding: 1rem;
+            min-width: 300px;
+            display: flex;
+            align-items: flex-start;
+            animation: slideDown 0.3s ease-out;
+        }
+        .notification.success {
+            border-left: 4px solid var(--secondary);
+        }
+        .notification.error {
+            border-left: 4px solid var(--danger);
+        }
+        .notification.warning {
+            border-left: 4px solid var(--accent);
+        }
+        .notification.info {
+            border-left: 4px solid var(--primary);
+        }
+        .notification-icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+        .notification.success .notification-icon {
+            color: var(--secondary);
+        }
+        .notification.error .notification-icon {
+            color: var(--danger);
+        }
+        .notification.warning .notification-icon {
+            color: var(--accent);
+        }
+        .notification.info .notification-icon {
+            color: var(--primary);
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .notification-message {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+        /* Page transitions */
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        /* Form elements */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .badge-blue {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+        }
+        .badge-green {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+        .badge-yellow {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
+        }
+        .badge-red {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        .badge-gray {
+            background-color: rgba(107, 114, 128, 0.1);
+            color: var(--text-secondary);
+        }
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        .tab {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .tab:hover {
+            color: var(--text-primary);
+        }
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .pagination-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .pagination-btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            background-color: white;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pagination-btn:hover {
+            background-color: var(--light);
+        }
+        .pagination-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        /* File upload */
+        .file-upload {
+            border: 2px dashed var(--border-color);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .file-upload:hover {
+            border-color: var(--primary);
+        }
+        .file-upload.dragover {
+            border-color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+        .file-upload-icon {
+            font-size: 2rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .file-upload-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .file-upload-input {
+            display: none;
+        }
+        /* Form check */
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .form-check-input {
+            margin-right: 0.5rem;
+        }
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-md);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        /* Task Creation Form */
+        .task-type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .task-type-card {
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .task-type-card:hover {
+            border-color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+        .task-type-card.selected {
+            border-color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+        .task-type-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .task-type-name {
+            font-weight: 500;
+        }
+        /* Client Selection */
+        .client-selection {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+        }
+        .client-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .client-item:last-child {
+            border-bottom: none;
+        }
+        .client-item:hover {
+            background-color: var(--light);
+        }
+        .client-item.selected {
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+        .client-checkbox {
+            margin-right: 0.75rem;
+        }
+        .client-info {
+            flex: 1;
+        }
+        .client-name {
+            font-weight: 500;
+        }
+        .client-details {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">V</div>
+                <div class="sidebar-logo-text">Vinayak PMS</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Dashboard</div>
+                    <a href="#" class="sidebar-item active" data-page="dashboard">
+                        <i class="fas fa-home sidebar-item-icon"></i>
+                        Dashboard
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Task Management</div>
+                    <a href="#" class="sidebar-item" data-page="add-task">
+                        <i class="fas fa-plus-circle sidebar-item-icon"></i>
+                        Add Task
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="tasks-list">
+                        <i class="fas fa-list sidebar-item-icon"></i>
+                        Tasks List
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="checklist-report">
+                        <i class="fas fa-clipboard-check sidebar-item-icon"></i>
+                        Checklist Report
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Clients</div>
+                    <a href="#" class="sidebar-item" data-page="add-client">
+                        <i class="fas fa-user-plus sidebar-item-icon"></i>
+                        Add Client
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="clients-list">
+                        <i class="fas fa-users sidebar-item-icon"></i>
+                        Clients List
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="import-clients">
+                        <i class="fas fa-file-import sidebar-item-icon"></i>
+                        Import Clients
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="bulk-edit-clients">
+                        <i class="fas fa-edit sidebar-item-icon"></i>
+                        Bulk Edit Clients
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="client-qrmp">
+                        <i class="fas fa-qrcode sidebar-item-icon"></i>
+                        Client QRMP
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="client-attachments">
+                        <i class="fas fa-paperclip sidebar-item-icon"></i>
+                        Client Attachments
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Contact Person</div>
+                    <a href="#" class="sidebar-item" data-page="contact-person-list">
+                        <i class="fas fa-address-book sidebar-item-icon"></i>
+                        Contact Person List
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="add-contact-person">
+                        <i class="fas fa-user-plus sidebar-item-icon"></i>
+                        Add Contact Person
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="import-contact-persons">
+                        <i class="fas fa-file-import sidebar-item-icon"></i>
+                        Import Contact Persons
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="bulk-edit-contact-persons">
+                        <i class="fas fa-edit sidebar-item-icon"></i>
+                        Bulk Edit Contact Persons
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="dsc-status">
+                        <i class="fas fa-certificate sidebar-item-icon"></i>
+                        DSC Status
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Past Comments</div>
+                    <a href="#" class="sidebar-item" data-page="past-comments-list">
+                        <i class="fas fa-comments sidebar-item-icon"></i>
+                        Past Comments List
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="add-past-comment">
+                        <i class="fas fa-comment-plus sidebar-item-icon"></i>
+                        Add Past Comment
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="import-past-comments">
+                        <i class="fas fa-file-import sidebar-item-icon"></i>
+                        Import Past Comments
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="bulk-edit-past-comments">
+                        <i class="fas fa-edit sidebar-item-icon"></i>
+                        Bulk Edit Past Comments
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">To-Do</div>
+                    <a href="#" class="sidebar-item" data-page="todo-starred">
+                        <i class="fas fa-star sidebar-item-icon"></i>
+                        Starred
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="todo-today">
+                        <i class="fas fa-calendar-day sidebar-item-icon"></i>
+                        Today
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="todo-tomorrow">
+                        <i class="fas fa-calendar-plus sidebar-item-icon"></i>
+                        Tomorrow
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="todo-overdue">
+                        <i class="fas fa-calendar-times sidebar-item-icon"></i>
+                        Overdue
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="todo-week">
+                        <i class="fas fa-calendar-week sidebar-item-icon"></i>
+                        Next 7 Days
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="todo-without-due-date">
+                        <i class="fas fa-calendar-minus sidebar-item-icon"></i>
+                        Without Due Date
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Receipts & Payments</div>
+                    <a href="#" class="sidebar-item" data-page="receipts-payments-list">
+                        <i class="fas fa-file-invoice-dollar sidebar-item-icon"></i>
+                        Receipts & Payments List
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="payment-sources">
+                        <i class="fas fa-money-bill-wave sidebar-item-icon"></i>
+                        Payment Sources
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="payment-categories">
+                        <i class="fas fa-tags sidebar-item-icon"></i>
+                        Payment Categories
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Register In/Out</div>
+                    <a href="#" class="sidebar-item" data-page="register-in-out-list">
+                        <i class="fas fa-exchange-alt sidebar-item-icon"></i>
+                        Register In/Out List
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="register-documents">
+                        <i class="fas fa-file-alt sidebar-item-icon"></i>
+                        Register Documents
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="document-locations">
+                        <i class="fas fa-map-marker-alt sidebar-item-icon"></i>
+                        Document Locations
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Bulk Messages</div>
+                    <a href="#" class="sidebar-item" data-page="bulk-messages">
+                        <i class="fas fa-comment-dots sidebar-item-icon"></i>
+                        Send Bulk Messages
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="message-templates">
+                        <i class="fas fa-file-alt sidebar-item-icon"></i>
+                        Message Templates
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="message-automation">
+                        <i class="fas fa-robot sidebar-item-icon"></i>
+                        Message Automation
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="automation-reports">
+                        <i class="fas fa-chart-line sidebar-item-icon"></i>
+                        Automation Reports
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Attendance</div>
+                    <a href="#" class="sidebar-item" data-page="attendance-tracking">
+                        <i class="fas fa-user-clock sidebar-item-icon"></i>
+                        Attendance Tracking
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="attendance-settings">
+                        <i class="fas fa-cog sidebar-item-icon"></i>
+                        Attendance Settings
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="attendance-reports">
+                        <i class="fas fa-chart-bar sidebar-item-icon"></i>
+                        Attendance Reports
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Time Tracking</div>
+                    <a href="#" class="sidebar-item" data-page="add-time">
+                        <i class="fas fa-plus-circle sidebar-item-icon"></i>
+                        Add Time
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="time-reports">
+                        <i class="fas fa-file-alt sidebar-item-icon"></i>
+                        Your Time Report
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="time-tracking-settings">
+                        <i class="fas fa-cog sidebar-item-icon"></i>
+                        Time Tracking Settings
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Admin</div>
+                    <a href="#" class="sidebar-item" data-page="custom-fields">
+                        <i class="fas fa-columns sidebar-item-icon"></i>
+                        Custom Fields
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="groups">
+                        <i class="fas fa-layer-group sidebar-item-icon"></i>
+                        Groups
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="recurring-tasks">
+                        <i class="fas fa-sync-alt sidebar-item-icon"></i>
+                        Recurring Tasks
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="status-list">
+                        <i class="fas fa-tasks sidebar-item-icon"></i>
+                        Status List
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="task-settings">
+                        <i class="fas fa-cog sidebar-item-icon"></i>
+                        Task Settings
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="tags">
+                        <i class="fas fa-tags sidebar-item-icon"></i>
+                        Tags
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="users">
+                        <i class="fas fa-users sidebar-item-icon"></i>
+                        Users
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="notification-settings">
+                        <i class="fas fa-bell sidebar-item-icon"></i>
+                        Notification Settings
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="checklist-templates">
+                        <i class="fas fa-clipboard-list sidebar-item-icon"></i>
+                        Checklist Templates
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Reports</div>
+                    <a href="#" class="sidebar-item" data-page="reports">
+                        <i class="fas fa-chart-pie sidebar-item-icon"></i>
+                        Reports
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Fees Tracking</div>
+                    <a href="#" class="sidebar-item" data-page="fees-tracking">
+                        <i class="fas fa-money-check-alt sidebar-item-icon"></i>
+                        Fees Tracking & Billing
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="invoices">
+                        <i class="fas fa-file-invoice sidebar-item-icon"></i>
+                        Invoices
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="fee-packages">
+                        <i class="fas fa-box sidebar-item-icon"></i>
+                        Fee Packages
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="client-fee-settings">
+                        <i class="fas fa-user-cog sidebar-item-icon"></i>
+                        Client Fee Settings
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="advance-fee-report">
+                        <i class="fas fa-file-invoice-dollar sidebar-item-icon"></i>
+                        Advance Fee Report
+                    </a>
+                    <a href="#" class="sidebar-item" data-page="fee-tracking-settings">
+                        <i class="fas fa-cog sidebar-item-icon"></i>
+                        Fee Tracking Settings
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Support</div>
+                    <a href="https://pmssupport.finexo.in/?_gl=..." target="_blank" class="sidebar-item">
+                        <i class="fas fa-question-circle sidebar-item-icon"></i>
+                        Support Guides
+                    </a>
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSf6AheU7uzzOXEYvcecihcVKeUxcu4egHrQFjxkpe2XRIzX1w/viewform" target="_blank" class="sidebar-item">
+                        <i class="fas fa-envelope sidebar-item-icon"></i>
+                        Contact Support
+                    </a>
+                    <a href="https://chromewebstore.google.com/detail/finexo-pms-login-extensio/bjhbhfainbagijicpomjiocdafmggcnh?hl=en" target="_blank" class="sidebar-item">
+                        <i class="fab fa-chrome sidebar-item-icon"></i>
+                        Chrome Extension
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" placeholder="Search by Name, Trade Name or File No">
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <!-- Notification Bell -->
+                    <div class="dropdown">
+                        <button class="notification-bell" id="notification-bell">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu" id="notification-dropdown">
+                            <div class="dropdown-item">
+                                <div class="flex items-center">
+                                    <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                                    <div>
+                                        <div class="font-medium">Task Overdue</div>
+                                        <div class="text-xs text-gray-500">GST filing for ABC Corp is overdue</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item">
+                                <div class="flex items-center">
+                                    <i class="fas fa-user-plus text-blue-500 mr-2"></i>
+                                    <div>
+                                        <div class="font-medium">New Client Added</div>
+                                        <div class="text-xs text-gray-500">XYZ Enterprises has been added</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    <div>
+                                        <div class="font-medium">Task Completed</div>
+                                        <div class="text-xs text-gray-500">Income Tax return filed successfully</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item text-center text-blue-600">
+                                View All Notifications
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- User Menu -->
+                    <div class="dropdown">
+                        <button class="user-avatar" id="user-menu-btn">
+                            VP
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown">
+                            <div class="dropdown-item">
+                                <i class="fas fa-user mr-2"></i>
+                                Your Profile
+                            </div>
+                            <div class="dropdown-item">
+                                <i class="fas fa-building mr-2"></i>
+                                Your Firms
+                            </div>
+                            <div class="dropdown-item">
+                                <i class="fas fa-credit-card mr-2"></i>
+                                Subscription
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item">
+                                <i class="fas fa-cog mr-2"></i>
+                                Settings
+                            </div>
+                            <div class="dropdown-item">
+                                <i class="fas fa-moon mr-2" id="theme-toggle"></i>
+                                Dark Mode
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item">
+                                <i class="fas fa-sign-out-alt mr-2"></i>
+                                Sign Out
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content Area -->
+            <div class="content" id="content">
+                <!-- Dashboard Page -->
+                <div class="page active" id="dashboard-page">
+                    <div class="page-header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <p class="page-subtitle">Last Refreshed at 1 Aug 2025, 10:09:08 am</p>
+                    </div>
+                    
+                    <!-- Task Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-lg bg-blue-100 text-blue-600">
+                                        <i class="fas fa-tasks text-xl"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-semibold">Total Tasks</h3>
+                                        <p class="text-2xl font-bold">32</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-lg bg-green-100 text-green-600">
+                                        <i class="fas fa-check-circle text-xl"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-semibold">Completed</h3>
+                                        <p class="text-2xl font-bold">2</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-lg bg-yellow-100 text-yellow-600">
+                                        <i class="fas fa-clock text-xl"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-semibold">Pending</h3>
+                                        <p class="text-2xl font-bold">30</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-lg bg-red-100 text-red-600">
+                                        <i class="fas fa-exclamation-circle text-xl"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-semibold">Overdue</h3>
+                                        <p class="text-2xl font-bold">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Tasks -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Tasks</h3>
+                            <button class="btn btn-primary" onclick="showPage('add-task')">
+                                <i class="fas fa-plus mr-2"></i>
+                                Add Task
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Task</th>
+                                            <th>Client</th>
+                                            <th>Due Date</th>
+                                            <th>Status</th>
+                                            <th>Assigned To</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>GSTR-1 (Monthly)</td>
+                                            <td>M01 - Aim Informatics</td>
+                                            <td>11-08-2025</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>GSTR-3B (Monthly)</td>
+                                            <td>M01 - Aim Informatics</td>
+                                            <td>20-07-2025</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>GSTR-1 (Quarterly)</td>
+                                            <td>M05 - C M Enterprise</td>
+                                            <td>13-07-2025</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>GSTR-3B (Monthly)</td>
+                                            <td>49 - VIORAY FOOD CARE</td>
+                                            <td>20-07-2025</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>GSTR-3B (Monthly)</td>
+                                            <td>69 - J B N Traders</td>
+                                            <td>20-07-2025</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>VP</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add Task Page -->
+                <div class="page" id="add-task-page">
+                    <div class="page-header">
+                        <h1 class="page-title">Add Task</h1>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Create Task</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="add-task-form">
+                                <div class="form-group">
+                                    <label class="form-label">Task Type</label>
+                                    <div class="task-type-selector">
+                                        <div class="task-type-card" data-type="GST">
+                                            <div class="task-type-icon">
+                                                <i class="fas fa-file-invoice-dollar"></i>
+                                            </div>
+                                            <div class="task-type-name">GST</div>
+                                        </div>
+                                        <div class="task-type-card" data-type="Income Tax">
+                                            <div class="task-type-icon">
+                                                <i class="fas fa-calculator"></i>
+                                            </div>
+                                            <div class="task-type-name">Income Tax</div>
+                                        </div>
+                                        <div class="task-type-card" data-type="MCA">
+                                            <div class="task-type-icon">
+                                                <i class="fas fa-building"></i>
+                                            </div>
+                                            <div class="task-type-name">MCA</div>
+                                        </div>
+                                        <div class="task-type-card" data-type="Other">
+                                            <div class="task-type-icon">
+                                                <i class="fas fa-tasks"></i>
+                                            </div>
+                                            <div class="task-type-name">Other</div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="task-type" name="task-type" required>
+                                </div>
+                                
+                                <div id="task-details-container" class="hidden">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Task Name</label>
+                                            <select class="form-select" id="task-name" name="task-name" required>
+                                                <option value="">Select Task</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">Period</label>
+                                            <select class="form-select" id="task-period" name="task-period" required>
+                                                <option value="">Select Period</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">Due Date</label>
+                                            <input type="date" class="form-input" id="task-due-date" name="task-due-date" required>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">Assigned To</label>
+                                            <select class="form-select" id="task-assigned-to" name="task-assigned-to" required>
+                                                <option value="">Select User</option>
+                                                <option value="SP">Sandip patel</option>
+                                                <option value="VP">VIKRAM PANDOR</option>
+                                                <option value="MP">Milan Patel</option>
+                                                <option value="BP">Biren Patel</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Clients</label>
+                                        <div class="client-selection" id="client-selection">
+                                            <!-- Clients will be populated here -->
+                                        </div>
+                                        <div class="text-sm text-gray-500 mt-1">
+                                            Note:- Duplicate tasks (the same task for the same period) will not get created again for the clients and will be ignored by the system
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex justify-end space-x-3 mt-6">
+                                        <button type="button" class="btn btn-secondary" onclick="showPage('tasks-list')">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Create Task</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tasks List Page -->
+                <div class="page" id="tasks-list-page">
+                    <div class="page-header">
+                        <h1 class="page-title">Tasks</h1>
+                        <div class="flex space-x-2">
+                            <button class="btn btn-primary" onclick="showPage('add-task')">
+                                <i class="fas fa-plus mr-2"></i>
+                                Add Task
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                                <div class="flex items-center space-x-2 mb-2 md:mb-0">
+                                    <div class="search-container w-64">
+                                        <i class="fas fa-search search-icon"></i>
+                                        <input type="text" class="search-input" placeholder="Search by task, client, or period">
+                                    </div>
+                                    <select class="form-select w-40">
+                                        <option value="">Open</option>
+                                        <option value="working">Working</option>
+                                        <option value="completed">Completed</option>
+                                    </select>
+                                    <button class="btn btn-secondary">
+                                        <i class="fas fa-filter mr-1"></i>
+                                        Filter
+                                    </button>
+                                    <button class="btn btn-secondary">
+                                        <i class="fas fa-file-export mr-1"></i>
+                                        Export
+                                    </button>
+                                </div>
+                                <div>
+                                    <button class="btn btn-secondary">
+                                        <i class="fas fa-tasks mr-1"></i>
+                                        Bulk Action
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>FILE NO - CLIENT - TRADE NAME</th>
+                                            <th>TASK</th>
+                                            <th>PERIOD</th>
+                                            <th>STATUS</th>
+                                            <th>DUE DATE</th>
+                                            <th>WORKING</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tasks-tbody">
+                                        <tr>
+                                            <td>M01 - Aim Informatics - Amitkumar Rasiklal Raval</td>
+                                            <td>GSTR-1 (Monthly)</td>
+                                            <td>Apr 25</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>11-05-2025</td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>M01 - Aim Informatics - Amitkumar Rasiklal Raval</td>
+                                            <td>GSTR-1 (Monthly)</td>
+                                            <td>May 25</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>11-06-2025</td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>M01 - Aim Informatics - Amitkumar Rasiklal Raval</td>
+                                            <td>GSTR-3B (Monthly)</td>
+                                            <td>May 25</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>20-06-2025</td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>M01 - Aim Informatics - Amitkumar Rasiklal Raval</td>
+                                            <td>GSTR-1 (Monthly)</td>
+                                            <td>Jun 25</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>11-07-2025</td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>M05 - C M Enterprise - Amin Chirag Mulabhai</td>
+                                            <td>GSTR-1 (Quarterly)</td>
+                                            <td>Apr 25 to Jun 25</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>13-07-2025</td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>49 - VIORAY FOOD CARE - NIMISHABEN ALPESHBHAI PATEL</td>
+                                            <td>GSTR-3B (Monthly)</td>
+                                            <td>Jun 25</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>20-07-2025</td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>69 - J B N Traders - Mukesh Kumawat</td>
+                                            <td>GSTR-3B (Monthly)</td>
+                                            <td>Jun 25</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>20-07-2025</td>
+                                            <td>VP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>M01 - Aim Informatics - Amitkumar Rasiklal Raval</td>
+                                            <td>GSTR-3B (Monthly)</td>
+                                            <td>Jun 25</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>20-07-2025</td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>M05 - C M Enterprise - Amin Chirag Mulabhai</td>
+                                            <td>GSTR-3B (Quarterly)</td>
+                                            <td>Apr 25 to Jun 25</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>22-07-2025</td>
+                                            <td>SP</td>
+                                        </tr>
+                                        <tr>
+                                            <td>28 - SHREE GOKUL CONSTRUCTION - USHABEN BHUPENDRAKUMAR SHAH</td>
+                                            <td>GSTR-1 (Monthly)</td>
+                                            <td>Jul 25</td>
+                                            <td><span class="badge badge-yellow">Pending</span></td>
+                                            <td>11-08-2025</td>
+                                            <td>SP</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="pagination">
+                                <div class="pagination-info">
+                                    Showing 1 to 10 of 32 results
+                                </div>
+                                <div class="pagination-controls">
+                                    <button class="pagination-btn" disabled>
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <button class="pagination-btn active">1</button>
+                                    <button class="pagination-btn">2</button>
+                                    <button class="pagination-btn">3</button>
+                                    <button class="pagination-btn">4</button>
+                                    <button class="pagination-btn">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Placeholder for other pages -->
+                <div class="page" id="checklist-report-page">
+                    <div class="page-header">
+                        <h1 class="page-title">Checklist Report</h1>
+                    </div>
+                    <div class="card">
+                        <div class="card-body text-center py-10">
+                            <i class="fas fa-clipboard-check text-4xl text-gray-400 mb-4"></i>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">Checklist Report</h3>
+                            <p class="text-gray-500">This page is under development</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="page" id="add-client-page">
+                    <div class="page-header">
+                        <h1 class="page-title">Add Client</h1>
+                    </div>
+                    <div class="card">
+                        <div class="card-body text-center py-10">
+                            <i class="fas fa-user-plus text-4xl text-gray-400 mb-4"></i>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">Add Client</h3>
+                            <p class="text-gray-500">This page is under development</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="page" id="clients-list-page">
+                    <div class="page-header">
+                        <h1 class="page-title">Clients List</h1>
+                    </div>
+                    <div class="card">
+                        <div class="card-body text-center py-10">
+                            <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">Clients List</h3>
+                            <p class="text-gray-500">This page is under development</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification Container -->
+    <div class="notification-container" id="notification-container"></div>
+    
+    <script>
+        // Sample data for tasks
+        let tasksData = [
+            {
+                id: 1,
+                fileNo: "M01",
+                clientName: "Aim Informatics",
+                tradeName: "Amitkumar Rasiklal Raval",
+                task: "GSTR-1 (Monthly)",
+                period: "Apr 25",
+                status: "Pending",
+                dueDate: "11-05-2025",
+                working: "SP"
+            },
+            {
+                id: 2,
+                fileNo: "M01",
+                clientName: "Aim Informatics",
+                tradeName: "Amitkumar Rasiklal Raval",
+                task: "GSTR-1 (Monthly)",
+                period: "May 25",
+                status: "Pending",
+                dueDate: "11-06-2025",
+                working: "SP"
+            },
+            {
+                id: 3,
+                fileNo: "M01",
+                clientName: "Aim Informatics",
+                tradeName: "Amitkumar Rasiklal Raval",
+                task: "GSTR-3B (Monthly)",
+                period: "May 25",
+                status: "Pending",
+                dueDate: "20-06-2025",
+                working: "SP"
+            },
+            {
+                id: 4,
+                fileNo: "M01",
+                clientName: "Aim Informatics",
+                tradeName: "Amitkumar Rasiklal Raval",
+                task: "GSTR-1 (Monthly)",
+                period: "Jun 25",
+                status: "Pending",
+                dueDate: "11-07-2025",
+                working: "SP"
+            },
+            {
+                id: 5,
+                fileNo: "M05",
+                clientName: "C M Enterprise",
+                tradeName: "Amin Chirag Mulabhai",
+                task: "GSTR-1 (Quarterly)",
+                period: "Apr 25 to Jun 25",
+                status: "Pending",
+                dueDate: "13-07-2025",
+                working: "SP"
+            },
+            {
+                id: 6,
+                fileNo: "49",
+                clientName: "VIORAY FOOD CARE",
+                tradeName: "NIMISHABEN ALPESHBHAI PATEL",
+                task: "GSTR-3B (Monthly)",
+                period: "Jun 25",
+                status: "Pending",
+                dueDate: "20-07-2025",
+                working: "SP"
+            },
+            {
+                id: 7,
+                fileNo: "69",
+                clientName: "J B N Traders",
+                tradeName: "Mukesh Kumawat",
+                task: "GSTR-3B (Monthly)",
+                period: "Jun 25",
+                status: "Pending",
+                dueDate: "20-07-2025",
+                working: "VP"
+            },
+            {
+                id: 8,
+                fileNo: "M01",
+                clientName: "Aim Informatics",
+                tradeName: "Amitkumar Rasiklal Raval",
+                task: "GSTR-3B (Monthly)",
+                period: "Jun 25",
+                status: "Pending",
+                dueDate: "20-07-2025",
+                working: "SP"
+            },
+            {
+                id: 9,
+                fileNo: "M05",
+                clientName: "C M Enterprise",
+                tradeName: "Amin Chirag Mulabhai",
+                task: "GSTR-3B (Quarterly)",
+                period: "Apr 25 to Jun 25",
+                status: "Pending",
+                dueDate: "22-07-2025",
+                working: "SP"
+            },
+            {
+                id: 10,
+                fileNo: "28",
+                clientName: "SHREE GOKUL CONSTRUCTION",
+                tradeName: "USHABEN BHUPENDRAKUMAR SHAH",
+                task: "GSTR-1 (Monthly)",
+                period: "Jul 25",
+                status: "Pending",
+                dueDate: "11-08-2025",
+                working: "SP"
+            }
+        ];
+
+        // Sample data for clients
+        const clientsData = [
+            {
+                id: 1,
+                fileNo: "M01",
+                name: "Aim Informatics",
+                tradeName: "Amitkumar Rasiklal Raval"
+            },
+            {
+                id: 2,
+                fileNo: "M05",
+                name: "C M Enterprise",
+                tradeName: "Amin Chirag Mulabhai"
+            },
+            {
+                id: 3,
+                fileNo: "49",
+                name: "VIORAY FOOD CARE",
+                tradeName: "NIMISHABEN ALPESHBHAI PATEL"
+            },
+            {
+                id: 4,
+                fileNo: "69",
+                name: "J B N Traders",
+                tradeName: "Mukesh Kumawat"
+            },
+            {
+                id: 5,
+                fileNo: "28",
+                name: "SHREE GOKUL CONSTRUCTION",
+                tradeName: "USHABEN BHUPENDRAKUMAR SHAH"
+            },
+            {
+                id: 6,
+                fileNo: "44",
+                name: "HOTEL SHREE GOKUL",
+                tradeName: "BHAGWAN KHEMAJI"
+            },
+            {
+                id: 7,
+                fileNo: "51",
+                name: "SURYA ENTERPRISE",
+                tradeName: "NITINKUMAR NARSINHBHAI PATEL"
+            },
+            {
+                id: 8,
+                fileNo: "55",
+                name: "PARTH ENTERPRISE",
+                tradeName: "PATEL PARTHKUMAR"
+            },
+            {
+                id: 9,
+                fileNo: "80",
+                name: "Shree Ganesh Pashu Aahar",
+                tradeName: "Madhuben Prakashkumar Jain"
+            },
+            {
+                id: 10,
+                fileNo: "22",
+                name: "KUNJ ENTERPRISE",
+                tradeName: "PATEL SUNILBHAI RAMESHBHAI"
+            }
+        ];
+
+        // Task type definitions
+        const taskTypes = {
+            "GST": {
+                tasks: [
+                    "GSTR-1 (Monthly)",
+                    "GSTR-3B (Monthly)",
+                    "GSTR-1 (Quarterly)",
+                    "GSTR-3B (Quarterly)",
+                    "GSTR-4 (Quarterly)",
+                    "GSTR-5 (Monthly)",
+                    "GSTR-6 (Monthly)",
+                    "GSTR-7 (Monthly)",
+                    "GSTR-8 (Monthly)",
+                    "GSTR-9 (Annual)",
+                    "GSTR-9C (Annual)"
+                ],
+                periods: [
+                    "Apr 25",
+                    "May 25",
+                    "Jun 25",
+                    "Jul 25",
+                    "Aug 25",
+                    "Sep 25",
+                    "Oct 25",
+                    "Nov 25",
+                    "Dec 25",
+                    "Jan 26",
+                    "Feb 26",
+                    "Mar 26",
+                    "Apr 25 to Jun 25",
+                    "Jul 25 to Sep 25",
+                    "Oct 25 to Dec 25",
+                    "Jan 26 to Mar 26",
+                    "2024-25"
+                ]
+            },
+            "Income Tax": {
+                tasks: [
+                    "Income Tax Return (ITR-1)",
+                    "Income Tax Return (ITR-2)",
+                    "Income Tax Return (ITR-3)",
+                    "Income Tax Return (ITR-4)",
+                    "Income Tax Return (ITR-5)",
+                    "Income Tax Return (ITR-6)",
+                    "Income Tax Return (ITR-7)",
+                    "TDS Return (Quarterly)",
+                    "TDS Return (Annual)",
+                    "Advance Tax Calculation"
+                ],
+                periods: [
+                    "Q1 (Apr-Jun)",
+                    "Q2 (Jul-Sep)",
+                    "Q3 (Oct-Dec)",
+                    "Q4 (Jan-Mar)",
+                    "2024-25",
+                    "2025-26"
+                ]
+            },
+            "MCA": {
+                tasks: [
+                    "Annual Return (MGT-7)",
+                    "Financial Statement (AOC-4)",
+                    "ADT-1",
+                    "DIR-3 KYC",
+                    "DPT-3",
+                    "PAS-6",
+                    "MGT-14",
+                    "MGT-15",
+                    "INC-20A",
+                    "INC-22A"
+                ],
+                periods: [
+                    "2024-25",
+                    "Q1 (Apr-Jun)",
+                    "Q2 (Jul-Sep)",
+                    "Q3 (Oct-Dec)",
+                    "Q4 (Jan-Mar)"
+                ]
+            },
+            "Other": {
+                tasks: [
+                    "Audit Report",
+                    "Bank Statement",
+                    "Sales Entry",
+                    "Purchase Entry",
+                    "Payroll Processing",
+                    "Tally Entry",
+                    "RoC Filing",
+                    "ESI Return",
+                    "PF Return",
+                    "Professional Tax Return"
+                ],
+                periods: [
+                    "Monthly",
+                    "Quarterly",
+                    "Half Yearly",
+                    "Annual",
+                    "Apr 25",
+                    "May 25",
+                    "Jun 25",
+                    "Jul 25",
+                    "Aug 25",
+                    "Sep 25",
+                    "Oct 25",
+                    "Nov 25",
+                    "Dec 25",
+                    "Jan 26",
+                    "Feb 26",
+                    "Mar 26"
+                ]
+            }
+        };
+
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const menuToggle = document.getElementById('menu-toggle');
+        const content = document.getElementById('content');
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const pages = document.querySelectorAll('.page');
+        const notificationBell = document.getElementById('notification-bell');
+        const notificationDropdown = document.getElementById('notification-dropdown');
+        const userMenuBtn = document.getElementById('user-menu-btn');
+        const userDropdown = document.getElementById('user-dropdown');
+        const themeToggle = document.getElementById('theme-toggle');
+        const notificationContainer = document.getElementById('notification-container');
+        
+        // Toggle Sidebar
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+            mainContent.classList.toggle('expanded');
+        });
+        
+        // Navigation
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all items
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                
+                // Add active class to clicked item
+                item.classList.add('active');
+                
+                // Get the page to show
+                const pageId = item.getAttribute('data-page');
+                
+                // Hide all pages
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Show the selected page
+                const selectedPage = document.getElementById(`${pageId}-page`);
+                if (selectedPage) {
+                    selectedPage.classList.add('active');
+                }
+                
+                // Close sidebar on mobile after navigation
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('show');
+                    mainContent.classList.add('expanded');
+                }
+            });
+        });
+        
+        // Dropdowns
+        notificationBell.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeAllDropdowns();
+            notificationDropdown.classList.toggle('show');
+        });
+        
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeAllDropdowns();
+            userDropdown.classList.toggle('show');
+        });
+        
+        // Close all dropdowns
+        function closeAllDropdowns() {
+            document.querySelectorAll('.dropdown-menu').forEach(dropdown => {
+                dropdown.classList.remove('show');
+            });
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            closeAllDropdowns();
+        });
+        
+        // Theme Toggle
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                themeToggle.innerHTML = '<i class="fas fa-sun mr-2"></i>Light Mode';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon mr-2"></i>Dark Mode';
+            }
+        });
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            let icon = '';
+            if (type === 'success') {
+                icon = '<i class="fas fa-check-circle notification-icon"></i>';
+            } else if (type === 'error') {
+                icon = '<i class="fas fa-exclamation-circle notification-icon"></i>';
+            } else if (type === 'warning') {
+                icon = '<i class="fas fa-exclamation-triangle notification-icon"></i>';
+            } else {
+                icon = '<i class="fas fa-info-circle notification-icon"></i>';
+            }
+            
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+                <button class="notification-close">&times;</button>
+            `;
+            
+            notificationContainer.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
+            
+            // Close button
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            });
+        }
+        
+        // Show page function
+        function showPage(pageId) {
+            // Hide all pages
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show the selected page
+            const selectedPage = document.getElementById(`${pageId}-page`);
+            if (selectedPage) {
+                selectedPage.classList.add('active');
+            }
+            
+            // Update sidebar active state
+            sidebarItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-page') === pageId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
+        // Render tasks table
+        function renderTasksTable() {
+            const tbody = document.getElementById('tasks-tbody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            tasksData.forEach(task => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${task.fileNo} - ${task.clientName} - ${task.tradeName}</td>
+                    <td>${task.task}</td>
+                    <td>${task.period}</td>
+                    <td><span class="badge badge-${task.status === 'Pending' ? 'yellow' : task.status === 'Completed' ? 'green' : 'blue'}">${task.status}</span></td>
+                    <td>${task.dueDate}</td>
+                    <td>${task.working}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Add Task Page Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render tasks table
+            renderTasksTable();
+            
+            // Task type selection
+            const taskTypeCards = document.querySelectorAll('.task-type-card');
+            const taskTypeInput = document.getElementById('task-type');
+            const taskDetailsContainer = document.getElementById('task-details-container');
+            const taskNameSelect = document.getElementById('task-name');
+            const taskPeriodSelect = document.getElementById('task-period');
+            const clientSelection = document.getElementById('client-selection');
+            
+            taskTypeCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    // Remove selected class from all cards
+                    taskTypeCards.forEach(c => c.classList.remove('selected'));
+                    
+                    // Add selected class to clicked card
+                    card.classList.add('selected');
+                    
+                    // Set task type value
+                    const taskType = card.getAttribute('data-type');
+                    taskTypeInput.value = taskType;
+                    
+                    // Show task details container
+                    taskDetailsContainer.classList.remove('hidden');
+                    
+                    // Populate task names
+                    taskNameSelect.innerHTML = '<option value="">Select Task</option>';
+                    taskTypes[taskType].tasks.forEach(task => {
+                        const option = document.createElement('option');
+                        option.value = task;
+                        option.textContent = task;
+                        taskNameSelect.appendChild(option);
+                    });
+                    
+                    // Populate periods
+                    taskPeriodSelect.innerHTML = '<option value="">Select Period</option>';
+                    taskTypes[taskType].periods.forEach(period => {
+                        const option = document.createElement('option');
+                        option.value = period;
+                        option.textContent = period;
+                        taskPeriodSelect.appendChild(option);
+                    });
+                    
+                    // Populate client selection
+                    clientSelection.innerHTML = '';
+                    clientsData.forEach(client => {
+                        const clientItem = document.createElement('div');
+                        clientItem.className = 'client-item';
+                        clientItem.innerHTML = `
+                            <input type="checkbox" class="client-checkbox" id="client-${client.id}" value="${client.id}">
+                            <label for="client-${client.id}" class="client-info">
+                                <div class="client-name">${client.fileNo} - ${client.name}</div>
+                                <div class="client-details">${client.tradeName}</div>
+                            </label>
+                        `;
+                        clientSelection.appendChild(clientItem);
+                    });
+                });
+            });
+            
+            // Add Task Form
+            const addTaskForm = document.getElementById('add-task-form');
+            if (addTaskForm) {
+                addTaskForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form values
+                    const taskType = taskTypeInput.value;
+                    const taskName = taskNameSelect.value;
+                    const taskPeriod = taskPeriodSelect.value;
+                    const taskDueDate = document.getElementById('task-due-date').value;
+                    const taskAssignedTo = document.getElementById('task-assigned-to').value;
+                    
+                    // Get selected clients
+                    const selectedClients = Array.from(document.querySelectorAll('.client-checkbox:checked'))
+                        .map(checkbox => parseInt(checkbox.value));
+                    
+                    if (selectedClients.length === 0) {
+                        showNotification('Please select at least one client', 'warning');
+                        return;
+                    }
+                    
+                    // Create tasks for each selected client
+                    let tasksCreated = 0;
+                    selectedClients.forEach(clientId => {
+                        const client = clientsData.find(c => c.id === clientId);
+                        if (!client) return;
+                        
+                        // Check if task already exists for this client and period
+                        const existingTask = tasksData.find(t => 
+                            t.fileNo === client.fileNo && 
+                            t.clientName === client.name && 
+                            t.task === taskName && 
+                            t.period === taskPeriod
+                        );
+                        
+                        if (existingTask) {
+                            console.log(`Task already exists for ${client.name}`);
+                            return;
+                        }
+                        
+                        // Create new task
+                        const newTask = {
+                            id: tasksData.length + 1,
+                            fileNo: client.fileNo,
+                            clientName: client.name,
+                            tradeName: client.tradeName,
+                            task: taskName,
+                            period: taskPeriod,
+                            status: "Pending",
+                            dueDate: taskDueDate,
+                            working: taskAssignedTo
+                        };
+                        
+                        tasksData.push(newTask);
+                        tasksCreated++;
+                    });
+                    
+                    if (tasksCreated > 0) {
+                        // Show success notification
+                        showNotification(`${tasksCreated} tasks created successfully`, 'success');
+                        
+                        // Reset form
+                        addTaskForm.reset();
+                        taskTypeCards.forEach(c => c.classList.remove('selected'));
+                        taskDetailsContainer.classList.add('hidden');
+                        
+                        // Re-render tasks table
+                        renderTasksTable();
+                        
+                        // Navigate to tasks list
+                        setTimeout(() => {
+                            showPage('tasks-list');
+                        }, 1000);
+                    } else {
+                        showNotification('No tasks were created. They may already exist.', 'warning');
+                    }
+                });
+            }
+            
+            // Show welcome notification
+            setTimeout(() => {
+                showNotification('Welcome to Vinayak PMS! Your professional management system is ready.', 'success');
+            }, 1000);
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('show');
+                mainContent.classList.remove('expanded');
+            }
+        });
+    </script>
+</body>
+</html>
